@@ -1,0 +1,24 @@
+build/
+tests/
+frame/
+util/
+bin/
+.clangd/
+.ccls-cache/
+.cache/
+*.json
+gmon.out
+*.perf
+*perf.data
+*.data.old
+*.csv
+*.mp4
+output.png
+
+# latex output
+doc/_minted-guide/
+doc/guide.aux
+doc/guide.log
+doc/guide.toc
+doc/svg-inkscape/
+doc/missfont.log
