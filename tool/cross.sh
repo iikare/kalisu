@@ -32,6 +32,10 @@ then
     CROSSCOMPILE=x86_64-w64-mingw32- \
     HAVE_X11=no \
     HAVE_GLUT=no \
+    HAVE_CURL=no \
+    HAVE_GUMBO=no \
+    HAVE_TESSERACT=no \
+    HAVE_LEPTONICA=no \
     XCFLAGS="-msse4.1" \
     libs
 fi
