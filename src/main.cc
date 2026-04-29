@@ -1,17 +1,18 @@
+#include "aghfile.h"
 #include "build_target.h"
 #include "controller.h"
-#include "wrap.h"
 #include "log.h"
+#include "misc.h"
+#include "wrap.h"
 
 controller ctr;
 
 using std::max;
 
 int main(int argc, char** argv) {
-
-  ctr.init();
+  ctr.init(assetSet);
   if (argc >= 2) {
-    //logW(LL_CRIT, "usage: ./stave_viewer [pdf]");
+    // logW(LL_CRIT, "usage: ./stave_viewer [pdf]");
     ctr.load(argv[1]);
   }
 
@@ -36,7 +37,13 @@ int main(int argc, char** argv) {
         if (ctr.open_file.pending()) {
           ctr.load(ctr.open_file.getPath());
           ctr.open_file.reset();
+          y_off = 0;
         }
+      }
+
+      // close document
+      if (isKeyPressed(KEY_W)) {
+        ctr.unload();
       }
     }
 
@@ -111,6 +118,14 @@ int main(int argc, char** argv) {
 
       current_y += page_h;
       p++;
+    }
+
+    if (!ctr.loaded()) {
+      string load_text = "load a pdf w/ctrl-o";
+      int load_text_size = 32;
+      Vector2 load_text_bounds = measureTextEx(load_text, load_text_size);
+      drawTextEx(load_text, ctr.get_w() / 2.0f - load_text_bounds.x / 2.0f,
+                 ctr.get_h() / 2 - load_text_bounds.y / 20, ctr.text_col, 255, load_text_size);
     }
 
     ctr.end();

@@ -1,29 +1,42 @@
 #pragma once
 
+#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
+#include "asset.h"
 #include "build_target.h"
-#include "io.h"
+#include "color.h"
 #include "data.h"
+#include "io.h"
+#include "wrap.h"
+
+extern vector<asset> assetSet;
 
 using std::make_pair;
+using std::map;
 using std::pair;
 using std::string;
+using std::unordered_map;
 using std::vector;
 
 class controller {
  public:
-  void init();
+  void init(vector<asset>& asset_set);
   void load(string fp);
   void update();
   void unload();
   void close();
   void begin() {
     BeginDrawing();
-    ClearBackground(WHITE);
+    clearBackground(bg_col);
   }
   void end() { EndDrawing(); }
+
+  bool loaded() { return load_flag; }
+
+  const Font& get_font(const string& id, int size);
 
   unsigned int get_w() { return width; }
   unsigned int get_h() { return height; }
@@ -45,15 +58,14 @@ class controller {
   const char* FILTER_PDF = "pdf:pdf";
   ioController open_file = ioController(OSDIALOG_OPEN, FILTER_PDF);
 
+  colorRGB text_col = colorRGB(10, 10, 10);
+  colorRGB bg_col = colorRGB(240, 240, 240);
+
  private:
+  void init_data(const vector<asset>& asset_set);
   void find_staves(vector<int> b_ct, int w);
 
-  void update_fps();
-  int c_mon = -1;
-
   string file_path;
-  unsigned int width = W_WIDTH;
-  unsigned int height = W_HEIGHT;
 
   constexpr static float DPI_SCALE = 4.0f;
 
@@ -61,5 +73,13 @@ class controller {
   fz_document* doc;
   int page_ct;
 
-  bool loaded = false;
+  bool load_flag = false;
+
+  unsigned int width = W_WIDTH;
+  unsigned int height = W_HEIGHT;
+
+  void update_fps();
+  int c_mon = -1;
+
+  unordered_map<string, pair<asset, map<int, Font>>> fontMap;
 };

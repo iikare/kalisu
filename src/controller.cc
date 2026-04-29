@@ -1,8 +1,9 @@
 #include "controller.h"
+
 #include "log.h"
 
-void controller::init() {
-  #if defined(TARGET_REL)
+void controller::init(vector<asset>& asset_set) {
+#if defined(TARGET_REL)
   SetTraceLogLevel(LOG_ERROR);
 #else
   SetTraceLogLevel(LOG_ERROR);
@@ -14,8 +15,8 @@ void controller::init() {
 #if defined(TARGET_WIN)
   SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 #else
-  //SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
-   SetConfigFlags(FLAG_MSAA_4X_HINT);
+  // SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+  SetConfigFlags(FLAG_MSAA_4X_HINT);
 #endif
 
   const string window_title = string(W_NAME) + " " + string(W_VER);
@@ -24,13 +25,59 @@ void controller::init() {
   SetWindowMinSize(W_WIDTH, W_HEIGHT);
 
   update_fps();
+
+  init_data(asset_set);
+}
+
+void controller::init_data(const vector<asset>& asset_set) {
+  for (const auto& item : asset_set) {
+    switch (item.assetType) {
+      using enum ASSET;
+      case FONT:
+        fontMap.insert(make_pair(item.assetName, make_pair(item, map<int, Font>())));
+        break;
+      default:
+        // these items aren't statically loaded
+        break;
+    }
+  }
+}
+
+const Font& controller::get_font(const string& id, int size) {
+  // find if a font with this id exists
+  auto fit = fontMap.find(id);
+  if (fit == fontMap.end()) {
+    logW(LL_CRIT, "invalid font id -", id);
+    // return nullptr;
+    fit = fontMap.begin();
+  }
+
+  // if this font exists, find map of font size to font pointer
+  auto it = fit->second.second.find(size);
+  if (it == fit->second.second.end()) {
+    // if end is reached, this font combination doesn't exist and needs to be
+    // created
+
+    asset& tmpFontAsset = fit->second.first;
+    int lim = 255;
+    int* loc = nullptr;
+
+    Font tmp = LoadFontFromMemory(".otf", tmpFontAsset.data, tmpFontAsset.dataLen, size, loc, lim);
+
+    SetTextureFilter(tmp.texture, TEXTURE_FILTER_BILINEAR);
+
+    fit->second.second.insert(make_pair(size, tmp));
+
+    // it = fontMap.find(size);
+  }
+
+  return fit->second.second.find(size)->second;
 }
 
 void controller::load(string fp) {
   logQ("loading:", fp);
-  if (loaded) {
+  if (load_flag) {
     unload();
-    loaded = false;
   }
   ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
   fz_register_document_handlers(ctx);
@@ -73,7 +120,7 @@ void controller::load(string fp) {
   }
 
   find_system_breakpoints();
-  loaded = true;
+  load_flag = true;
 }
 
 void controller::find_staves(vector<int> b_ct, int w) {
@@ -187,8 +234,7 @@ void controller::unload() {
 
   fz_drop_document(ctx, doc);
   fz_drop_context(ctx);
+  load_flag = false;
 }
 
-void controller::close() {
-  CloseWindow();
-}
+void controller::close() { CloseWindow(); }

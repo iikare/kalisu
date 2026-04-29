@@ -58,7 +58,7 @@ CFLAGSSTD=$(CFLAGS) -fno-exceptions
 ifeq ($(strip $(arch)),)
 LFLAGS+=$(LD) -lraylib -lmupdf -lmupdf $(LFLAGSOSD)
 else ifeq ($(strip $(arch)),win)
-LFLAGS+=-L./dpd/mupdf/build/release -lmupdf -lmupdf-third -L./dpd/raylib/src -lraylib $(LFLAGSOSD) -static -static-libgcc -static-libstdc++ data/i.res --verbose
+LFLAGS+=-L./dpd/mupdf/build/release -lmupdf -lmupdf-third -L./dpd/raylib/src -lraylib $(LFLAGSOSD) -static -static-libgcc -static-libstdc++ data/icon/i.res
 endif
 
 PREREQ_DIR=@mkdir -p $(@D)
@@ -84,7 +84,14 @@ ifeq ($(strip $(arch)),win)
 else
 	@./tool/objtype.sh linux
 endif
+
+ifneq ($(strip $(relp)),end)
+	@$(MAKE) --no-print-directory pre
+endif
 	@$(MAKE) --no-print-directory $(NAME)
+ifneq ($(strip $(relp)),begin)
+	@./tool/generate.sh
+endif
 
 ifneq ($(strip $(rel)),)
 ifeq ($(strip $(prof)),)
@@ -95,7 +102,6 @@ else
 endif
 endif
 endif
-
 
 re: clean
 	@$(MAKE) --no-print-directory
@@ -116,6 +122,9 @@ $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 $(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
 	$(PREREQ_DIR)
 	$(C) $(CFLAGSOSD) -o $@ -c $<
+
+pre:
+	@./tool/generate.sh ON
 
 clean:
 	@echo

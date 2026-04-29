@@ -8,6 +8,8 @@
 #include "box.h"
 #include "build_target.h"
 #include "color.h"
+#include "data.h"
+#include "define.h"
 #include "log.h"
 
 using std::is_enum;
@@ -44,6 +46,13 @@ bool pointInBox(const T& pt, const rect& box) {
 }
 rect pointToRect(const point& a, const point& b);
 point getMousePosition();
+
+void drawTextEx(const string& msg, const Vector2& pos, const colorRGB& col, unsigned char alpha = 255,
+                int size = 14, const string& font = DEFAULT_FONT);
+void drawTextEx(const string& msg, int x, int y, const colorRGB& col, unsigned char alpha = 255,
+                int size = 14, const string& font = DEFAULT_FONT);
+
+const Vector2 measureTextEx(const string& msg, int size = 14, const string& font = DEFAULT_FONT);
 
 bool isValidPath(const string& path);
 bool isValidExtension(const string& ext);
