@@ -91,7 +91,7 @@ void controller::load(string fp) {
 
   for (int i = 0; i < page_ct; i++) {
     fz_page* page_ref = fz_load_page(ctx, doc, i);
-    fz_rect rect = fz_bound_page(ctx, page_ref);
+    // fz_rect rect = fz_bound_page(ctx, page_ref);
     fz_matrix ctm = fz_scale(DPI_SCALE, DPI_SCALE);
     fz_pixmap* pix = fz_new_pixmap_from_page(ctx, page_ref, ctm, fz_device_rgb(ctx), 0);
 

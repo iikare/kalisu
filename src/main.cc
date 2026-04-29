@@ -8,6 +8,7 @@
 controller ctr;
 
 using std::max;
+using std::min;
 
 int main(int argc, char** argv) {
   ctr.init(assetSet);
@@ -30,17 +31,16 @@ int main(int argc, char** argv) {
     if (isKeyDown(KEY_UP)) {
       y_off += scr_spd * 0.1f;
     }
-    if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
-      // open pdf
-      if (isKeyPressed(KEY_O)) {
-        ctr.open_file.dialog();
-        if (ctr.open_file.pending()) {
-          ctr.load(ctr.open_file.getPath());
-          ctr.open_file.reset();
-          y_off = 0;
-        }
+    if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL) && isKeyPressed(KEY_O)) ||
+        (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !ctr.loaded())) {
+      ctr.open_file.dialog();
+      if (ctr.open_file.pending()) {
+        ctr.load(ctr.open_file.getPath());
+        ctr.open_file.reset();
+        y_off = 0;
       }
-
+    }
+    if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
       // close document
       if (isKeyPressed(KEY_W)) {
         if (ctr.loaded()) {
@@ -92,12 +92,17 @@ int main(int argc, char** argv) {
       show_info = false;
     }
 
-    if (y_off > 0) {
+    if (isKeyPressed(KEY_HOME) || y_off > 0) {
       y_off = 0;
     }
     if (ctr.get_total_height() > ctr.get_h()) {
       float min_y = -(ctr.get_total_height() - ctr.get_h());
-      y_off = max(y_off, min_y);
+      if (isKeyPressed(KEY_END)) {
+        y_off = min(y_off, min_y);
+      }
+      else {
+        y_off = max(y_off, min_y);
+      }
     }
     else {
       y_off = 0;
