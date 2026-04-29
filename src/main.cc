@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
   float y_off = 0.0f;
   float scr_spd = 30.0f;
-  bool show_info = true;
+  bool show_info = false;
 
   while (ctr.run()) {
     float wheel = GetMouseWheelMove();
