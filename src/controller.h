@@ -37,6 +37,9 @@ class controller {
 
   bool loaded() { return load_flag; }
 
+  bool run() { return !WindowShouldClose() && !close_flag; }
+  void set_close() { close_flag = true; }
+
   const Font& get_font(const string& id, int size);
 
   unsigned int get_w() { return width; }
@@ -90,6 +93,7 @@ class controller {
 
   void update_fps();
   int c_mon = -1;
+  bool close_flag = false;
 
   unordered_map<string, pair<asset, map<int, Font>>> fontMap;
 };

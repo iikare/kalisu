@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   float scr_spd = 30.0f;
   bool show_info = true;
 
-  while (!WindowShouldClose()) {
+  while (ctr.run()) {
     float wheel = GetMouseWheelMove();
     if (wheel != 0) {
       y_off += wheel * scr_spd;
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
           show_info = false;
         }
         else {
-          // TODO: close program
+          ctr.set_close();
         }
       }
       if (isKeyPressed(KEY_I)) {

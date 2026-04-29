@@ -242,8 +242,10 @@ void controller::unload() {
   systems.clear();
   breakpoints.clear();
 
-  fz_drop_document(ctx, doc);
-  fz_drop_context(ctx);
+  if (load_flag) {
+    fz_drop_document(ctx, doc);
+    fz_drop_context(ctx);
+  }
   load_flag = false;
 }
 
