@@ -2,17 +2,38 @@
 #include "log.h"
 
 void controller::init() {
+  #if defined(TARGET_REL)
   SetTraceLogLevel(LOG_ERROR);
-  InitWindow(width, height, prog_name.c_str());
-  SetExitKey(KEY_F7);
-  update_fps();
+#else
+  SetTraceLogLevel(LOG_ERROR);
+  // SetTraceLogLevel(LOG_DEBUG);
+  //  SetTraceLogLevel(LOG_TRACE);
+#endif
 
-  ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
-  fz_register_document_handlers(ctx);
+// allow resizing of window on windows
+#if defined(TARGET_WIN)
+  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+#else
+  //SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+   SetConfigFlags(FLAG_MSAA_4X_HINT);
+#endif
+
+  const string window_title = string(W_NAME) + " " + string(W_VER);
+  InitWindow(width, height, window_title.c_str());
+  SetExitKey(KEY_F7);
+  SetWindowMinSize(W_WIDTH, W_HEIGHT);
+
+  update_fps();
 }
 
 void controller::load(string fp) {
-  logQ(fp);
+  logQ("loading:", fp);
+  if (loaded) {
+    unload();
+    loaded = false;
+  }
+  ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
+  fz_register_document_handlers(ctx);
   doc = fz_open_document(ctx, fp.c_str());
   page_ct = fz_count_pages(ctx, doc);
 
@@ -52,6 +73,7 @@ void controller::load(string fp) {
   }
 
   find_system_breakpoints();
+  loaded = true;
 }
 
 void controller::find_staves(vector<int> b_ct, int w) {
@@ -158,7 +180,15 @@ void controller::unload() {
   for (auto& p : pages) {
     UnloadTexture(p);
   }
+  pages.clear();
+  staves.clear();
+  systems.clear();
+  breakpoints.clear();
+
   fz_drop_document(ctx, doc);
   fz_drop_context(ctx);
+}
+
+void controller::close() {
   CloseWindow();
 }

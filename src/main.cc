@@ -1,5 +1,6 @@
 #include "build_target.h"
 #include "controller.h"
+#include "wrap.h"
 #include "log.h"
 
 controller ctr;
@@ -7,13 +8,12 @@ controller ctr;
 using std::max;
 
 int main(int argc, char** argv) {
-  if (argc < 2) {
-    logW(LL_CRIT, "usage: ./stave_viewer [pdf]");
-    return 1;
-  }
 
   ctr.init();
-  ctr.load(argv[1]);
+  if (argc >= 2) {
+    //logW(LL_CRIT, "usage: ./stave_viewer [pdf]");
+    ctr.load(argv[1]);
+  }
 
   float y_off = 0.0f;
   float scr_spd = 30.0f;
@@ -23,15 +23,25 @@ int main(int argc, char** argv) {
     if (wheel != 0) {
       y_off += wheel * scr_spd;
     }
-    if (IsKeyDown(KEY_DOWN)) {
+    if (isKeyDown(KEY_DOWN)) {
       y_off -= scr_spd * 0.1f;
     }
-    if (IsKeyDown(KEY_UP)) {
+    if (isKeyDown(KEY_UP)) {
       y_off += scr_spd * 0.1f;
+    }
+    if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
+      // open pdf
+      if (isKeyPressed(KEY_O)) {
+        ctr.open_file.dialog();
+        if (ctr.open_file.pending()) {
+          ctr.load(ctr.open_file.getPath());
+          ctr.open_file.reset();
+        }
+      }
     }
 
     // system detection
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (isKeyPressed(KEY_SPACE)) {
       bool snap = false;
       float last_bp_abs_y = 0.0f;
       float current_page_abs_y = 0.0f;
@@ -109,5 +119,6 @@ int main(int argc, char** argv) {
   }
 
   ctr.unload();
+  ctr.close();
   return 0;
 }

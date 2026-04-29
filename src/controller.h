@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "build_target.h"
+#include "io.h"
+#include "data.h"
 
 using std::make_pair;
 using std::pair;
@@ -16,6 +18,7 @@ class controller {
   void load(string fp);
   void update();
   void unload();
+  void close();
   void begin() {
     BeginDrawing();
     ClearBackground(WHITE);
@@ -34,11 +37,13 @@ class controller {
 
   void find_system_breakpoints();
 
-  int page_ct;
   vector<Texture2D> pages;
   vector<vector<pair<int, int>>> staves;
   vector<vector<pair<int, int>>> systems;
   vector<vector<int>> breakpoints;
+
+  const char* FILTER_PDF = "pdf:pdf";
+  ioController open_file = ioController(OSDIALOG_OPEN, FILTER_PDF);
 
  private:
   void find_staves(vector<int> b_ct, int w);
@@ -47,12 +52,14 @@ class controller {
   int c_mon = -1;
 
   string file_path;
-  const string prog_name = "stave_viewer";
-  unsigned int width = 800;
-  unsigned int height = 1000;
+  unsigned int width = W_WIDTH;
+  unsigned int height = W_HEIGHT;
 
   constexpr static float DPI_SCALE = 4.0f;
 
   fz_context* ctx;
   fz_document* doc;
+  int page_ct;
+
+  bool loaded = false;
 };
