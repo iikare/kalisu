@@ -1,7 +1,9 @@
 #include "controller.h"
 
+#include "aghdef.h"
 #include "log.h"
 #include "misc.h"
+#include "wrap.h"
 
 void controller::init(vector<asset>& asset_set) {
 #if defined(TARGET_REL)
@@ -28,6 +30,7 @@ void controller::init(vector<asset>& asset_set) {
   update_fps();
 
   init_data(asset_set);
+  text.init();
 }
 
 void controller::init_data(const vector<asset>& asset_set) {
@@ -245,3 +248,47 @@ void controller::unload() {
 }
 
 void controller::close() { CloseWindow(); }
+
+void controller::render_info() {
+  const int infoSideMargin = get_w() - info_width;
+  const int infoTopMargin = get_h() - info_height;
+  drawRectangle(infoSideMargin / 2.0f, infoTopMargin / 2.0f, info_width, info_height, menu_col);
+
+  static constexpr int iconTextSize = 30;
+  static constexpr double borderMargin = 20;
+
+  const string copySym = "©";
+  const string copy = " iika-re 2020-" + string(COPY_YEAR);
+  static constexpr int copySymSize = 22;
+
+  Vector2 iconTextVec = measureTextEx(W_NAME, iconTextSize);
+  double iconTextX = (get_w() - iconTextVec.x) / 2.0f;
+  double iconTextY = (get_h() - iconTextVec.y) / 2.0f + 2;
+
+  drawTextEx(W_NAME, iconTextX, iconTextY, icon_col, 255, iconTextSize);
+
+  double copySymWidth = measureTextEx(copySym, copySymSize).x;
+  double copyWidth = measureTextEx(copy).x;
+  double copyHeight = measureTextEx(copy).y;
+  double licenseWidth = measureTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3")).x;
+
+  drawTextEx(ctr.text.getString("INFO_BOX_BUILD_DATE") + " " + string(BUILD_DATE),
+             infoSideMargin / 2.0f + borderMargin, infoTopMargin / 2.0f + info_height - borderMargin - 20,
+             ctr.text_col);
+
+  auto versionString = ctr.text.getString("INFO_BOX_VER") + " " + string(W_VER);
+#if !defined(TARGET_REL)
+  versionString += " - " + string(COMMIT_HASH);
+#endif
+
+  drawTextEx(versionString, infoSideMargin / 2.0f + borderMargin,
+             infoTopMargin / 2.0f + info_height + copyHeight - borderMargin - 20, ctr.text_col);
+
+  drawTextEx(copySym, infoSideMargin / 2.0f + info_width - borderMargin - copySymWidth - copyWidth,
+             infoTopMargin / 2.0f + info_height - borderMargin - 20, ctr.text_col, 255, copySymSize);
+  drawTextEx(copy, infoSideMargin / 2.0f + info_width - borderMargin - copyWidth,
+             infoTopMargin / 2.0f + info_height - borderMargin - 20, ctr.text_col);
+  drawTextEx(ctr.text.getString("INFO_BOX_LICENSE_GPL3"),
+             infoSideMargin / 2.0f + info_width - borderMargin - licenseWidth,
+             infoTopMargin / 2.0f + info_height + copyHeight - borderMargin - 20, ctr.text_col);
+}

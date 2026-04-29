@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
 
   float y_off = 0.0f;
   float scr_spd = 30.0f;
+  bool show_info = true;
 
   while (!WindowShouldClose()) {
     float wheel = GetMouseWheelMove();
@@ -43,7 +44,16 @@ int main(int argc, char** argv) {
 
       // close document
       if (isKeyPressed(KEY_W)) {
-        ctr.unload();
+        if (ctr.loaded()) {
+          ctr.unload();
+          show_info = false;
+        }
+        else {
+          // TODO: close program
+        }
+      }
+      if (isKeyPressed(KEY_I)) {
+        show_info = !show_info;
       }
     }
 
@@ -122,12 +132,22 @@ int main(int argc, char** argv) {
 
     if (!ctr.loaded()) {
       string load_text = "load a pdf w/ctrl-o";
-      int load_text_size = 32;
+      int load_text_size = 30;
       Vector2 load_text_bounds = measureTextEx(load_text, load_text_size);
       drawTextEx(load_text, ctr.get_w() / 2.0f - load_text_bounds.x / 2.0f,
-                 ctr.get_h() / 2 - load_text_bounds.y / 20, ctr.text_col, 255, load_text_size);
+                 ctr.get_h() / 2.0f - load_text_bounds.y / 20, ctr.text_col, 255, load_text_size);
+
+      string info_text = "info - ctrl-i";
+      int info_text_size = 15;
+      Vector2 info_text_bounds = measureTextEx(info_text, info_text_size);
+      drawTextEx(info_text, ctr.get_w() / 2.0f - info_text_bounds.x / 2.0f,
+                 ctr.get_h() / 2.0f + load_text_bounds.y + 4 - info_text_bounds.y / 20, ctr.text_col, 255,
+                 info_text_size);
     }
 
+    if (show_info) {
+      ctr.render_info();
+    }
     ctr.end();
 
     ctr.update();

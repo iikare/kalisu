@@ -10,6 +10,7 @@
 #include "color.h"
 #include "data.h"
 #include "io.h"
+#include "text.h"
 #include "wrap.h"
 
 extern vector<asset> assetSet;
@@ -48,6 +49,8 @@ class controller {
     return total;
   }
 
+  void render_info();
+
   void find_system_breakpoints();
 
   vector<Texture2D> pages;
@@ -58,8 +61,15 @@ class controller {
   const char* FILTER_PDF = "pdf:pdf";
   ioController open_file = ioController(OSDIALOG_OPEN, FILTER_PDF);
 
+  textController text;
+
   colorRGB text_col = colorRGB(10, 10, 10);
   colorRGB bg_col = colorRGB(240, 240, 240);
+  colorRGB menu_col = colorRGB(222, 222, 222);
+  colorRGB icon_col = colorRGB(34, 115, 150);
+
+  static constexpr int info_width = 500;
+  static constexpr int info_height = 55;
 
  private:
   void init_data(const vector<asset>& asset_set);

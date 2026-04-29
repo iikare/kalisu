@@ -43,3 +43,8 @@ class enumChecker {
 };
 
 enum class ASSET { FONT, RENDER_TEXTURE, TEXTURE, SHADER, IMAGE, MODEL, NONE };
+
+enum class langType {
+  LANG_EN,
+  LANG_NONE,
+};
