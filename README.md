@@ -42,7 +42,7 @@ If executing `kalisu` from the command-line, up to one optional argument is acce
 ./bin/kalisu path/to/file.pdf
 ```
 
-Otherwise, use the built-in graphical commands.
+Otherwise, use the built-in graphical commands. Attempting to load a non-score pdf file is not supported and will lead to undefined behavior.
 
 # license
 `kalisu` is licensed under GPLv3.

@@ -5,6 +5,8 @@
 #include "misc.h"
 #include "wrap.h"
 
+using std::min;
+
 void controller::init(vector<asset>& asset_set) {
 #if defined(TARGET_REL)
   SetTraceLogLevel(LOG_ERROR);
@@ -231,6 +233,26 @@ void controller::update() {
   height = GetScreenHeight();
 
   update_fps();
+  update_dropped_files();
+}
+
+void controller::update_dropped_files() {
+  if (IsFileDropped()) {
+    FilePathList dropFile = LoadDroppedFiles();
+    constexpr unsigned int dropLimit = 1;
+
+    if (dropFile.count > dropLimit) {
+      logW(LL_WARN, "excess files dropped - max:", dropLimit);
+    }
+
+    for (unsigned int idx = 0; idx < min(dropLimit, dropFile.count); ++idx) {
+      if (isValidPath(dropFile.paths[idx])) {
+        load(dropFile.paths[idx]);
+        break;
+      }
+    }
+    UnloadDroppedFiles(dropFile);
+  }
 }
 
 void controller::unload() {

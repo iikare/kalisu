@@ -27,6 +27,7 @@ class controller {
   void init(vector<asset>& asset_set);
   void load(string fp);
   void update();
+  void update_dropped_files();
   void unload();
   void close();
   void begin() {
