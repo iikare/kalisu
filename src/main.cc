@@ -12,12 +12,11 @@ using std::max;
 int main(int argc, char** argv) {
   ctr.init(assetSet);
   if (argc >= 2) {
-    // logW(LL_CRIT, "usage: ./stave_viewer [pdf]");
     ctr.load(argv[1]);
   }
 
-  float y_off = 0.0f;
-  float scr_spd = 30.0f;
+  float y_off = 0;
+  float scr_spd = 30;
   bool show_info = false;
 
   while (ctr.run()) {
@@ -88,6 +87,11 @@ int main(int argc, char** argv) {
       }
     }
 
+    int k = GetKeyPressed();
+    if (k && k != KEY_I) {
+      show_info = false;
+    }
+
     if (y_off > 0) {
       y_off = 0;
     }
@@ -102,8 +106,8 @@ int main(int argc, char** argv) {
     ctr.begin();
 
     float current_y = y_off;
-    int p = 0;
-    for (const auto& tex : ctr.pages) {
+    for (unsigned int p = 0; p < ctr.pages.size(); p++) {
+      const auto& tex = ctr.pages[p];
       float scale = ctr.get_w() / (float)tex.width;
       float page_h = (float)tex.height * scale;
 
@@ -112,22 +116,21 @@ int main(int argc, char** argv) {
       }
 
       // debug
-      for (const auto& l : ctr.systems[p]) {
-        if (current_y + l.first * scale > 0 && current_y + l.first * scale < ctr.get_h()) {
-          DrawLine(0, current_y + l.first * scale, ctr.get_w(), current_y + l.first * scale, RED);
-        }
-        if (current_y + l.second * scale > 0 && current_y + l.second * scale < ctr.get_h()) {
-          DrawLine(0, current_y + l.second * scale, ctr.get_w(), current_y + l.second * scale, RED);
-        }
-      }
-      for (const auto& l : ctr.breakpoints[p]) {
-        if (current_y + l * scale > 0 && current_y + l * scale < ctr.get_h()) {
-          DrawLine(0, current_y + l * scale, ctr.get_w(), current_y + l * scale, SKYBLUE);
-        }
-      }
+      // for (const auto& l : ctr.systems[p]) {
+      // if (current_y + l.first * scale > 0 && current_y + l.first * scale < ctr.get_h()) {
+      // DrawLine(0, current_y + l.first * scale, ctr.get_w(), current_y + l.first * scale, RED);
+      //}
+      // if (current_y + l.second * scale > 0 && current_y + l.second * scale < ctr.get_h()) {
+      // DrawLine(0, current_y + l.second * scale, ctr.get_w(), current_y + l.second * scale, RED);
+      //}
+      //}
+      // for (const auto& l : ctr.breakpoints[p]) {
+      // if (current_y + l * scale > 0 && current_y + l * scale < ctr.get_h()) {
+      // DrawLine(0, current_y + l * scale, ctr.get_w(), current_y + l * scale, SKYBLUE);
+      //}
+      //}
 
       current_y += page_h;
-      p++;
     }
 
     if (!ctr.loaded()) {
@@ -138,7 +141,7 @@ int main(int argc, char** argv) {
                  ctr.get_h() / 2.0f - load_text_bounds.y / 20, ctr.text_col, 255, load_text_size);
 
       string info_text = "info - ctrl-i";
-      int info_text_size = 15;
+      int info_text_size = 18;
       Vector2 info_text_bounds = measureTextEx(info_text, info_text_size);
       drawTextEx(info_text, ctr.get_w() / 2.0f - info_text_bounds.x / 2.0f,
                  ctr.get_h() / 2.0f + load_text_bounds.y + 4 - info_text_bounds.y / 20, ctr.text_col, 255,
