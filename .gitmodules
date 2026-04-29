@@ -1,0 +1,3 @@
+[submodule "dpd/raylib"]
+	path = dpd/raylib
+	url = https://github.com/iikare/raylib.git

@@ -1,4 +1,4 @@
-# kalisu - smarter cross-system movement for piano scores
+# kalisu - [tbd] 
 
 work in progress
 
