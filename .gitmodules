@@ -4,3 +4,6 @@
 [submodule "dpd/mupdf"]
 	path = dpd/mupdf
 	url = https://github.com/ArtifexSoftware/mupdf
+[submodule "dpd/osdialog"]
+	path = dpd/osdialog
+	url = https://github.com/AndrewBelt/osdialog

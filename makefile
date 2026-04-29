@@ -13,7 +13,11 @@ endif
 ifeq ($(strip $(arch)),)
 
 CXX=clang++
-LD=-lraylib $(shell pkg-config --libs mupdf) -lpthread -ldl -Wl
+C=clang
+LD=-fuse-ld=mold
+CFLAGSOSD=--std=c99  $(shell pkg-config --cflags gtk+-3.0)
+LFLAGSOSD=$(shell pkg-config --libs gtk+-3.0)
+SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_gtk.c
 
 else ifeq ($(strip $(arch)),win)
 
@@ -21,6 +25,7 @@ CXX=x86_64-w64-mingw32-g++
 CC=x86_64-w64-mingw32-ld
 C=x86_64-w64-mingw32-gcc
 DEPDEF=-DTARGET_WIN -I./dpd/mupdf/include
+CFLAGSOSD=--std=c99
 LFLAGSOSD=-lgdi32 -lwinmm -lopengl32 -lcomdlg32 -lole32 -luuid
 SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
 
@@ -51,13 +56,14 @@ endif
 CFLAGSSTD=$(CFLAGS) -fno-exceptions
 
 ifeq ($(strip $(arch)),)
-LFLAGS+=$(LD) -lraylib $(LFLAGSOSD)
+LFLAGS+=$(LD) -lraylib -lmupdf -lmupdf $(LFLAGSOSD)
 else ifeq ($(strip $(arch)),win)
-LFLAGS+=-Wl,--start-group -L./dpd/mupdf/build/release -lmupdf -lmupdf-third -Wl,--end-group -L./dpd/raylib/src -lraylib $(LFLAGSOSD) -static -static-libgcc -static-libstdc++ data/i.res --verbose
+LFLAGS+=-L./dpd/mupdf/build/release -lmupdf -lmupdf-third -L./dpd/raylib/src -lraylib $(LFLAGSOSD) -static -static-libgcc -static-libstdc++ data/i.res --verbose
 endif
 
 PREREQ_DIR=@mkdir -p $(@D)
 
+OSDDIR=dpd/osdialog
 SRCDIR=src
 BUILDDIR=build
 BINDIR=bin
@@ -66,6 +72,8 @@ NAME=$(addprefix $(BINDIR)/, kalisu)
 
 SRCS=$(wildcard $(SRCDIR)/*.cc)
 OBJS=$(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))
+
+OBJSOSD=$(patsubst $(OSDDIR)/%.c, $(BUILDDIR)/%.o, $(SRCSOSD))
 
 all:
 	@mkdir -p ./src/agh
@@ -96,14 +104,18 @@ f: clean
 	@$(MAKE) rel=a relp=begin --no-print-directory
 	@$(MAKE) arch=win rel=a relp=end --no-print-directory
 
-$(NAME): $(OBJS) | $(@D)
+$(NAME): $(OBJS) $(OBJSOSD) | $(@D)
 	$(PREREQ_DIR)
 
-	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(LFLAGS)
+	$(CXX) $(CFLAGSSTD) -o $(NAME) $(OBJS) $(OBJSOSD) $(LFLAGS)
 
 $(OBJS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cc
 	$(PREREQ_DIR)
 	$(CXX) $(CFLAGSSTD) -o $@ -c $<
+
+$(OBJSOSD): $(BUILDDIR)/%.o: $(OSDDIR)/%.c
+	$(PREREQ_DIR)
+	$(C) $(CFLAGSOSD) -o $@ -c $<
 
 clean:
 	@echo
