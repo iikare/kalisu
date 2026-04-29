@@ -13,24 +13,21 @@ endif
 ifeq ($(strip $(arch)),)
 
 CXX=clang++
-LD=-lraylib $(shell pkg-config --libs mupdf) -lpthread -ldl
+LD=-lraylib $(shell pkg-config --libs mupdf) -lpthread -ldl -Wl
 
 else ifeq ($(strip $(arch)),win)
 
 CXX=x86_64-w64-mingw32-g++
 CC=x86_64-w64-mingw32-ld
 C=x86_64-w64-mingw32-gcc
-DEPDEF=-DTARGET_WIN
+DEPDEF=-DTARGET_WIN -I./dpd/mupdf/include
+LFLAGSOSD=-lgdi32 -lwinmm -lopengl32 -lcomdlg32 -lole32 -luuid
+SRCSOSD=$(OSDDIR)/osdialog.c $(OSDDIR)/osdialog_win.c
 
 endif
 
 ifeq ($(strip $(rel)),)
-ifneq ($(strip $(torch)),)
-#RELFLAGS=-O3
 RELFLAGS=-Og -g
-else
-RELFLAGS=-Og -g
-endif
 else # release build
 RELFLAGS=-DTARGET_REL -O3 -ffast-math
 # thinLTO doesn't exist for cross-compiler
@@ -56,7 +53,7 @@ CFLAGSSTD=$(CFLAGS) -fno-exceptions
 ifeq ($(strip $(arch)),)
 LFLAGS+=$(LD) -lraylib $(LFLAGSOSD)
 else ifeq ($(strip $(arch)),win)
-LFLAGS+=-static -static-libgcc -static-libstdc++ -L./dpd/raylib/src -lraylib $(LFLAGSOSD) data/misc/i.res
+LFLAGS+=-Wl,--start-group -L./dpd/mupdf/build/release -lmupdf -lmupdf-third -Wl,--end-group -L./dpd/raylib/src -lraylib $(LFLAGSOSD) -static -static-libgcc -static-libstdc++ data/i.res --verbose
 endif
 
 PREREQ_DIR=@mkdir -p $(@D)
@@ -65,7 +62,7 @@ SRCDIR=src
 BUILDDIR=build
 BINDIR=bin
 
-NAME=$(addprefix $(BINDIR)/, stave_viewer)
+NAME=$(addprefix $(BINDIR)/, kalisu)
 
 SRCS=$(wildcard $(SRCDIR)/*.cc)
 OBJS=$(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))
@@ -73,9 +70,12 @@ OBJS=$(patsubst $(SRCDIR)/%.cc, $(BUILDDIR)/%.o, $(SRCS))
 all:
 	@mkdir -p ./src/agh
 
-#ifneq ($(strip $(relp)),end)
-	#@$(MAKE) --no-print-directory pre
-#endif
+ifeq ($(strip $(arch)),win)
+	@./tool/cross.sh
+	@./tool/objtype.sh win
+else
+	@./tool/objtype.sh linux
+endif
 	@$(MAKE) --no-print-directory $(NAME)
 
 ifneq ($(strip $(rel)),)
@@ -93,7 +93,7 @@ re: clean
 	@$(MAKE) --no-print-directory
 
 f: clean
-	@$(MAKE) rel=a relp=begin torch=y --no-print-directory
+	@$(MAKE) rel=a relp=begin --no-print-directory
 	@$(MAKE) arch=win rel=a relp=end --no-print-directory
 
 $(NAME): $(OBJS) | $(@D)

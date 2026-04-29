@@ -1,3 +1,6 @@
 [submodule "dpd/raylib"]
 	path = dpd/raylib
 	url = https://github.com/iikare/raylib.git
+[submodule "dpd/mupdf"]
+	path = dpd/mupdf
+	url = https://github.com/ArtifexSoftware/mupdf
