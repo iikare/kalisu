@@ -79,7 +79,7 @@ const Font& controller::get_font(const string& id, int size) {
 }
 
 void controller::load(string fp) {
-  logQ("loading", fp);
+  logW(LL_INFO, "loading", fp);
   auto start = std::chrono::high_resolution_clock::now();
   if (load_flag) {
     unload();
@@ -127,9 +127,9 @@ void controller::load(string fp) {
   find_system_breakpoints();
   load_flag = true;
 
-  logQ("staves      |", inner_vec_ct(staves));
-  logQ("systems     |", inner_vec_ct(systems));
-  logQ("breakpoints |", inner_vec_ct(breakpoints));
+  logW(LL_INFO, "staves      |", inner_vec_ct(staves));
+  logW(LL_INFO, "systems     |", inner_vec_ct(systems));
+  logW(LL_INFO, "breakpoints |", inner_vec_ct(breakpoints));
   debug_time(start, "load");
 }
 
