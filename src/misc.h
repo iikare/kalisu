@@ -35,6 +35,15 @@ T clampValue(T val, T lo, T hi) {
 }
 
 template <class T>
+size_t inner_vec_ct(vector<vector<T>> ov) {
+  size_t iv_ct = 0;
+  for (const auto& t : ov) {
+    iv_ct += t.size();
+  }
+  return iv_ct;
+}
+
+template <class T>
 bool pointInBox(const T& pt, const rect& box) {
   if constexpr (is_same<T, Vector2>::value || is_same<T, point>::value) {
     return static_cast<int>(pt.x) >= box.x && static_cast<int>(pt.x) < box.x + box.width &&

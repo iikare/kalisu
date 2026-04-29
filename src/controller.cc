@@ -1,6 +1,7 @@
 #include "controller.h"
 
 #include "log.h"
+#include "misc.h"
 
 void controller::init(vector<asset>& asset_set) {
 #if defined(TARGET_REL)
@@ -75,7 +76,8 @@ const Font& controller::get_font(const string& id, int size) {
 }
 
 void controller::load(string fp) {
-  logQ("loading:", fp);
+  logQ("loading", fp);
+  auto start = std::chrono::high_resolution_clock::now();
   if (load_flag) {
     unload();
   }
@@ -121,6 +123,11 @@ void controller::load(string fp) {
 
   find_system_breakpoints();
   load_flag = true;
+
+  logQ("staves      |", inner_vec_ct(staves));
+  logQ("systems     |", inner_vec_ct(systems));
+  logQ("breakpoints |", inner_vec_ct(breakpoints));
+  debug_time(start, "load");
 }
 
 void controller::find_staves(vector<int> b_ct, int w) {
