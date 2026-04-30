@@ -56,35 +56,61 @@ int main(int argc, char** argv) {
       }
     }
 
-    // system detection
-    if (isKeyPressed(KEY_SPACE)) {
-      bool snap = false;
+    if (isKeyPressed(KEY_SPACE) || isKeyPressed(KEY_PAGE_DOWN)) {
       float last_bp_abs_y = 0.0f;
       float current_page_abs_y = 0.0f;
+      bool snap = false;
 
       for (unsigned int p = 0; p < ctr.pages.size(); p++) {
         const auto& tex = ctr.pages[p];
         float scale = (float)ctr.get_w() / (float)tex.width;
-        float page_h = (float)tex.height * scale;
 
         for (auto& l : ctr.breakpoints[p]) {
           float bp_abs_y = current_page_abs_y + (l * scale);
 
-          if (bp_abs_y + y_off > ctr.get_h()) {
+          if (bp_abs_y + y_off > (float)ctr.get_h() + 1.0f) {
             y_off = -last_bp_abs_y;
             snap = true;
             break;
           }
-
           last_bp_abs_y = bp_abs_y;
         }
-
         if (snap) {
           break;
         }
-
-        current_page_abs_y += page_h;
+        current_page_abs_y += (float)tex.height * scale;
       }
+    }
+    else if (isKeyPressed(KEY_PAGE_UP)) {
+      float current_page_abs_y = 0.0f;
+      float target_y = 0.0f;
+      bool found_any_above = false;
+      bool finished = false;
+
+      for (unsigned int p = 0; p < ctr.pages.size(); p++) {
+        const auto& tex = ctr.pages[p];
+        float scale = (float)ctr.get_w() / (float)tex.width;
+
+        for (auto& l : ctr.breakpoints[p]) {
+          float bp_abs_y = current_page_abs_y + (l * scale);
+
+          if (bp_abs_y < -y_off - 1.0f) {
+            target_y = bp_abs_y;
+            found_any_above = true;
+          }
+          else {
+            finished = true;
+            break;
+          }
+        }
+
+        if (finished) {
+          break;
+        }
+        current_page_abs_y += (float)tex.height * scale;
+      }
+
+      y_off = found_any_above ? -target_y : 0.0f;
     }
 
     int k = GetKeyPressed();
