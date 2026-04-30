@@ -2,9 +2,17 @@
 #ifndef AGHFILE_H
 #define AGHFILE_H
 
-#include <vector>
+#pragma once
 
+#include <string>
+
+#include "agh.h"
 #include "asset.h"
 
-vector<asset> assetSet = {};
+using std::vector;
+
+vector<asset> assetSet = {
+    asset(ASSET::FONT, "YKLIGHT", __data_font_yklight_otf, __data_font_yklight_otf_len),
+
+};
 #endif  // AGHFILE_H
