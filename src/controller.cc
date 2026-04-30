@@ -222,6 +222,8 @@ void controller::find_staves(vector<int> b_ct, int w) {
 void controller::find_system_breakpoints() {
   for (unsigned int p = 0; p < pages.size(); ++p) {
     // logQ(systems[p]);
+    const auto& tex = ctr.pages[p];
+    float page_h = (float)tex.height;
 
     vector<int> page_breakpoints = {0};
 
@@ -233,6 +235,10 @@ void controller::find_system_breakpoints() {
       //(systems[p][sys-1].second + systems[p][sys].first)/2);
 
       page_breakpoints.push_back((systems[p][sys - 1].second + systems[p][sys].first) / 2);
+    }
+
+    if (p == pages.size() - 1) {
+      page_breakpoints.push_back(page_h);
     }
 
     breakpoints.push_back(page_breakpoints);
