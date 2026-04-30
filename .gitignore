@@ -14,6 +14,7 @@ gmon.out
 *.csv
 *.mp4
 output.png
+agh/*
 
 # latex output
 doc/_minted-guide/
