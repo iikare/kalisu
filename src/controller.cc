@@ -93,11 +93,29 @@ void controller::load(string fp) {
 
   for (int i = 0; i < page_ct; i++) {
     fz_page* page_ref = fz_load_page(ctx, doc, i);
-    // fz_rect rect = fz_bound_page(ctx, page_ref);
-    fz_matrix ctm = fz_scale(DPI_SCALE, DPI_SCALE);
+
+    fz_rect rect = fz_bound_page(ctx, page_ref);
+    float doc_width = rect.x1 - rect.x0;
+    float doc_height = rect.y1 - rect.y0;
+
+    const float page_limit_w = 4000.0f;
+    float final_scale = DPI_SCALE;
+
+    float scaled_width = doc_width * DPI_SCALE;
+    float scaled_height = doc_height * DPI_SCALE;
+
+    if (scaled_width > page_limit_w || scaled_height > page_limit_w) {
+      float width_scale = page_limit_w / doc_width;
+      float height_scale = page_limit_w / doc_height;
+
+      final_scale = (width_scale < height_scale) ? width_scale : height_scale;
+    }
+
+    fz_matrix ctm = fz_scale(final_scale, final_scale);
     fz_pixmap* pix = fz_new_pixmap_from_page(ctx, page_ref, ctm, fz_device_rgb(ctx), 0);
 
     std::vector<int> b_ct_by_row(pix->h, 0);
+    logQ(pix->h);
     unsigned char* pixels = pix->samples;
 
     constexpr unsigned int b_thr = 50;
@@ -246,7 +264,8 @@ void controller::update_dropped_files() {
     }
 
     for (unsigned int idx = 0; idx < min(dropLimit, dropFile.count); ++idx) {
-      if (isValidPath(dropFile.paths[idx])) {
+      if (isValidExtension(getExtension(dropFile.paths[idx]))) {
+        // logQ("valid dropped file:", dropFile.paths[idx]);
         load(dropFile.paths[idx]);
         break;
       }

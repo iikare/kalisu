@@ -1,4 +1,5 @@
 #include "io.h"
+
 #include "misc.h"
 
 ioController::ioController(osdialog_file_action action, string types) {
@@ -9,7 +10,6 @@ ioController::ioController(osdialog_file_action action, string types) {
 ioController::~ioController() { osdialog_filters_free(filter); }
 
 void ioController::dialog(const char* defName) {
-
   char* result = osdialog_file(action, working_dir.c_str(), defName, filter);
 
   if (result != nullptr) {

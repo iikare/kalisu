@@ -121,19 +121,19 @@ int main(int argc, char** argv) {
       }
 
       // debug
-      // for (const auto& l : ctr.systems[p]) {
-      // if (current_y + l.first * scale > 0 && current_y + l.first * scale < ctr.get_h()) {
-      // DrawLine(0, current_y + l.first * scale, ctr.get_w(), current_y + l.first * scale, RED);
-      //}
-      // if (current_y + l.second * scale > 0 && current_y + l.second * scale < ctr.get_h()) {
-      // DrawLine(0, current_y + l.second * scale, ctr.get_w(), current_y + l.second * scale, RED);
-      //}
-      //}
-      // for (const auto& l : ctr.breakpoints[p]) {
-      // if (current_y + l * scale > 0 && current_y + l * scale < ctr.get_h()) {
-      // DrawLine(0, current_y + l * scale, ctr.get_w(), current_y + l * scale, SKYBLUE);
-      //}
-      //}
+      for (const auto& l : ctr.systems[p]) {
+        if (current_y + l.first * scale > 0 && current_y + l.first * scale < ctr.get_h()) {
+          DrawLine(0, current_y + l.first * scale, ctr.get_w(), current_y + l.first * scale, RED);
+        }
+        if (current_y + l.second * scale > 0 && current_y + l.second * scale < ctr.get_h()) {
+          DrawLine(0, current_y + l.second * scale, ctr.get_w(), current_y + l.second * scale, RED);
+        }
+      }
+      for (const auto& l : ctr.breakpoints[p]) {
+        if (current_y + l * scale > 0 && current_y + l * scale < ctr.get_h()) {
+          DrawLine(0, current_y + l * scale, ctr.get_w(), current_y + l * scale, SKYBLUE);
+        }
+      }
 
       current_y += page_h;
     }
