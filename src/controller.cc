@@ -115,7 +115,7 @@ void controller::load(string fp) {
     fz_pixmap* pix = fz_new_pixmap_from_page(ctx, page_ref, ctm, fz_device_rgb(ctx), 0);
 
     std::vector<int> b_ct_by_row(pix->h, 0);
-    logQ(pix->h);
+    // logQ(pix->h);
     unsigned char* pixels = pix->samples;
 
     constexpr unsigned int b_thr = 50;

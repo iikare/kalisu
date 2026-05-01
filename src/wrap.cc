@@ -19,6 +19,11 @@ void drawLineBezier(float xi, float yi, float xf, float yf, float thick, const c
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
   DrawLineBezier((const Vector2){(float)xi, (float)yi}, (const Vector2){(float)xf, (float)yf}, thick, color);
 }
+
+void drawTriangle(const Vector2& v1, const Vector2& v2, const Vector2& v3, const colorRGB& col) {
+  Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};
+  DrawTriangle(v1, v2, v3, color);
+}
 void clearBackground() { ClearBackground({0, 0, 0, 0}); }
 void clearBackground(const colorRGB& col) {
   Color color = (Color){(unsigned char)col.r, (unsigned char)col.g, (unsigned char)col.b, 255};

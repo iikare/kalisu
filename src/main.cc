@@ -137,6 +137,7 @@ int main(int argc, char** argv) {
     ctr.begin();
 
     float current_y = y_off;
+    bool breakpoint_render = true;
     for (unsigned int p = 0; p < ctr.pages.size(); p++) {
       const auto& tex = ctr.pages[p];
       float scale = ctr.get_w() / (float)tex.width;
@@ -155,11 +156,17 @@ int main(int argc, char** argv) {
       // DrawLine(0, current_y + l.second * scale, ctr.get_w(), current_y + l.second * scale, RED);
       //}
       //}
-      // for (const auto& l : ctr.breakpoints[p]) {
-      // if (current_y + l * scale > 0 && current_y + l * scale < ctr.get_h()) {
-      // DrawLine(0, current_y + l * scale, ctr.get_w(), current_y + l * scale, SKYBLUE);
-      //}
-      //}
+      for (const auto& l : ctr.breakpoints[p]) {
+        if (current_y + l * scale >= 0 && current_y + l * scale < ctr.get_h()) {
+          if (breakpoint_render) {
+            breakpoint_render = false;
+            float tipX = 20.0f;
+            float tipY = current_y + l * scale;
+            drawLineEx(0, tipY, tipX - 1, tipY, 2, ctr.icon_col);
+            drawTriangle({tipX, tipY}, {tipX - 6, tipY - 5}, {tipX - 6, tipY + 5}, ctr.icon_col);
+          }
+        }
+      }
 
       current_y += page_h;
     }

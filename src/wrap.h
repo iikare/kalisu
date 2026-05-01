@@ -20,6 +20,8 @@ void drawLineEx(float xi, float yi, float xf, float yf, float thick, const color
                 unsigned char alpha = 255);
 void drawLineBezier(float xi, float yi, float xf, float yf, float thick, const colorRGB& col);
 
+void drawTriangle(const Vector2& v1, const Vector2& v2, const Vector2& v3, const colorRGB& col);
+
 void drawCircle(float x, float y, float r, const colorRGB& col, float alpha = 255);
 
 void drawRing(const Vector2& center, float iRad, float oRad, const colorRGB& col, float alpha = 255,
