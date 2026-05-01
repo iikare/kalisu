@@ -7,6 +7,7 @@ Navigate piano scores by system or group of systems.
 # dependencies
 This project requires several dependencies, many of which are submodules to this repository. Some of these modules are optional and/or platform specific.
 
+* `osdialog` (supplied as a submodule)
 * `mupdf`* (see below)
 * `raylib`**  (see below)
 * `make`
