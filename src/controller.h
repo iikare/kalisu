@@ -61,6 +61,7 @@ class controller {
   vector<vector<pair<int, int>>> staves;
   vector<vector<pair<int, int>>> systems;
   vector<vector<int>> breakpoints;
+  vector<vector<int>> mark_count;
 
   const char* FILTER_PDF = "pdf:pdf";
   ioController open_file = ioController(OSDIALOG_OPEN, FILTER_PDF);
@@ -71,6 +72,7 @@ class controller {
   colorRGB bg_col = colorRGB(240, 240, 240);
   colorRGB menu_col = colorRGB(222, 222, 222);
   colorRGB icon_col = colorRGB(34, 115, 150);
+  colorRGB system_col = colorRGB(255, 0, 0);
 
   static constexpr int info_width = 500;
   static constexpr int info_height = 55;
@@ -78,6 +80,7 @@ class controller {
  private:
   void init_data(const vector<asset>& asset_set);
   void find_staves(vector<int> b_ct, int w);
+  int find_optimal_breakpoint(int page, int start, int end);
 
   string file_path;
 

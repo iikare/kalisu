@@ -5,6 +5,7 @@
 #include "misc.h"
 #include "wrap.h"
 
+using std::max;
 using std::min;
 
 void controller::init(vector<asset>& asset_set) {
@@ -114,11 +115,12 @@ void controller::load(string fp) {
     fz_matrix ctm = fz_scale(final_scale, final_scale);
     fz_pixmap* pix = fz_new_pixmap_from_page(ctx, page_ref, ctm, fz_device_rgb(ctx), 0);
 
-    std::vector<int> b_ct_by_row(pix->h, 0);
+    vector<int> b_ct_by_row(pix->h, 0);
     // logQ(pix->h);
     unsigned char* pixels = pix->samples;
 
-    constexpr unsigned int b_thr = 50;
+    constexpr unsigned int b_thr = 128;
+    // constexpr float ln_thr = 0.75f;
     for (int y = 0; y < pix->h; y++) {
       int b_ct = 0;
       for (int x = 0; x < pix->w; x++) {
@@ -130,6 +132,7 @@ void controller::load(string fp) {
 
       b_ct_by_row[y] = b_ct;
     }
+    mark_count.push_back(b_ct_by_row);
 
     find_staves(b_ct_by_row, pix->w);
     // logQ(b_ct_by_row);
@@ -219,6 +222,56 @@ void controller::find_staves(vector<int> b_ct, int w) {
   systems.push_back(page_systems);
 }
 
+int controller::find_optimal_breakpoint(int page, int start, int end) {
+  vector<int> mark_idx;
+
+  for (int y = start; y <= end; ++y) {
+    if (mark_count[page][y] != 0) {
+      mark_idx.push_back(y);
+    }
+  }
+
+  int virtual_left = start - 1;
+
+  if (mark_idx.empty()) {
+    return start + (end - start) / 2;
+  }
+
+  int max_dist = -1;
+  int best_y = start;
+
+  int left = virtual_left;
+  int right = mark_idx.front();
+  int mid = left + (right - left) / 2;
+  best_y = max(start, mid);
+  max_dist = best_y - left;
+
+  for (size_t i = 0; i < mark_idx.size() - 1; ++i) {
+    int left = mark_idx[i];
+    int right = mark_idx[i + 1];
+
+    int mid = left + (right - left) / 2;
+    int dist = mid - left;
+
+    if (dist > max_dist) {
+      max_dist = dist;
+      best_y = mid;
+    }
+  }
+
+  left = mark_idx.back();
+  right = end + 1;
+  mid = left + (right - left) / 2;
+  int dist = mid - left;
+
+  if (dist > max_dist) {
+    max_dist = dist;
+    best_y = min(end, mid);
+  }
+
+  return best_y;
+}
+
 void controller::find_system_breakpoints() {
   for (unsigned int p = 0; p < pages.size(); ++p) {
     // logQ(systems[p]);
@@ -227,6 +280,10 @@ void controller::find_system_breakpoints() {
 
     vector<int> page_breakpoints = {0};
 
+    if (systems[p].size()) {
+      page_breakpoints[0] = find_optimal_breakpoint(p, 0, systems[p][0].first);
+    }
+
     for (unsigned int sys = 0; sys < systems[p].size(); ++sys) {
       if (!sys) {
         continue;
@@ -234,12 +291,22 @@ void controller::find_system_breakpoints() {
       // logQ(systems[p][sys-1].second, systems[p][sys].first,
       //(systems[p][sys-1].second + systems[p][sys].first)/2);
 
-      page_breakpoints.push_back((systems[p][sys - 1].second + systems[p][sys].first) / 2);
+      int breakpoint = (systems[p][sys - 1].second + systems[p][sys].first) / 2;
+      int breakpoint_opt = find_optimal_breakpoint(p, systems[p][sys - 1].second, breakpoint + 1);
+      int breakpoint_thr = 10;
+      if (breakpoint_opt - systems[p][sys - 1].second > breakpoint_thr) {
+        breakpoint = breakpoint_opt;
+      }
+
+      // logQ(mark_count[p][breakpoint]);
+      page_breakpoints.push_back(breakpoint);
     }
 
     if (p == pages.size() - 1) {
       page_breakpoints.push_back(page_h);
     }
+
+    page_breakpoints.push_back(find_optimal_breakpoint(p, systems[p].back().second, page_h));
 
     breakpoints.push_back(page_breakpoints);
   }
@@ -288,6 +355,7 @@ void controller::unload() {
   staves.clear();
   systems.clear();
   breakpoints.clear();
+  mark_count.clear();
 
   if (load_flag) {
     fz_drop_document(ctx, doc);
