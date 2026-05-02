@@ -13,7 +13,7 @@ using std::min;
 int main(int argc, char** argv) {
   ctr.init(assetSet);
   if (argc >= 2) {
-    ctr.load(argv[1]);
+    ctr.open_file.setPending(argv[1]);
   }
 
   float y_off = 0;
@@ -34,11 +34,6 @@ int main(int argc, char** argv) {
     if ((isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL) && isKeyPressed(KEY_O)) ||
         (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !ctr.loaded())) {
       ctr.open_file.dialog();
-      if (ctr.open_file.pending()) {
-        ctr.load(ctr.open_file.getPath());
-        ctr.open_file.reset();
-        y_off = 0;
-      }
     }
     if (isKeyDown(KEY_LEFT_CONTROL, KEY_RIGHT_CONTROL)) {
       // close document
@@ -184,25 +179,33 @@ int main(int argc, char** argv) {
       current_y += page_h;
     }
 
-    if (!ctr.loaded()) {
-      string load_text = "load a pdf w/ctrl-o";
+    if (!ctr.loaded() || ctr.open_file.pending()) {
+      string load_text = ctr.open_file.pending() ? "loading..." : "load a pdf w/ctrl-o";
       int load_text_size = 30;
       Vector2 load_text_bounds = measureTextEx(load_text, load_text_size);
       drawTextEx(load_text, ctr.get_w() / 2.0f - load_text_bounds.x / 2.0f,
                  ctr.get_h() / 2.0f - load_text_bounds.y / 20, ctr.text_col, 255, load_text_size);
 
-      string info_text = "info - ctrl-i";
-      int info_text_size = 18;
-      Vector2 info_text_bounds = measureTextEx(info_text, info_text_size);
-      drawTextEx(info_text, ctr.get_w() / 2.0f - info_text_bounds.x / 2.0f,
-                 ctr.get_h() / 2.0f + load_text_bounds.y + 4 - info_text_bounds.y / 20, ctr.text_col, 255,
-                 info_text_size);
+      if (!ctr.loaded()) {
+        string info_text = "info - ctrl-i";
+        int info_text_size = 18;
+        Vector2 info_text_bounds = measureTextEx(info_text, info_text_size);
+        drawTextEx(info_text, ctr.get_w() / 2.0f - info_text_bounds.x / 2.0f,
+                   ctr.get_h() / 2.0f + load_text_bounds.y + 4 - info_text_bounds.y / 20, ctr.text_col, 255,
+                   info_text_size);
+      }
     }
 
     if (show_info) {
       ctr.render_info();
     }
     ctr.end();
+
+    if (ctr.open_file.pending()) {
+      ctr.load(ctr.open_file.getPath());
+      ctr.open_file.reset();
+      y_off = 0;
+    }
 
     ctr.update();
   }

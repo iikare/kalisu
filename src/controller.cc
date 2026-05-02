@@ -84,6 +84,12 @@ const Font& controller::get_font(const string& id, int size) {
 void controller::load(string fp) {
   logW(LL_INFO, "loading", fp);
   auto start = std::chrono::high_resolution_clock::now();
+
+  if (!isValidPath(fp)) {
+    logW(LL_WARN, "invalid file:", fp);
+    return;
+  }
+
   if (load_flag) {
     unload();
   }
@@ -177,9 +183,11 @@ void controller::find_staves(vector<int> b_ct, int w) {
   }
 
   vector<pair<int, int>> page_staves;
+  vector<pair<int, int>> page_systems;
 
   if (lines.size() < 5) {
-    staves.push_back(page_staves);
+    staves.push_back({{0, 0}});
+    systems.push_back({{0, 0}});
     return;
   }
 
@@ -207,7 +215,6 @@ void controller::find_staves(vector<int> b_ct, int w) {
 
   staves.push_back(page_staves);
 
-  vector<pair<int, int>> page_systems;
   for (unsigned int s = 0; s < page_staves.size(); s += 2) {
     pair<int, int> p = make_pair(page_staves[s].first, 0);
 
