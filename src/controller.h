@@ -54,6 +54,7 @@ class controller {
   }
 
   void render_info();
+  void render_hatch(int y, int h, int w);
 
   void find_system_breakpoints();
 

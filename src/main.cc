@@ -143,6 +143,7 @@ int main(int argc, char** argv) {
     ctr.begin();
 
     float current_y = y_off;
+    int last_bp_y = current_y;
     bool breakpoint_render = true;
     for (unsigned int p = 0; p < ctr.pages.size(); p++) {
       const auto& tex = ctr.pages[p];
@@ -162,18 +163,29 @@ int main(int argc, char** argv) {
       // drawLine(0, current_y + l.second * scale, ctr.get_w(), current_y + l.second * scale, ctr.icon_col);
       //}
       //}
-      for (const auto& l : ctr.breakpoints[p]) {
+      for (unsigned int li = 0; li < ctr.breakpoints[p].size(); ++li) {
+        int l = ctr.breakpoints[p][li];
         if (current_y + l * scale >= 0 && current_y + l * scale < ctr.get_h()) {
           if (breakpoint_render) {
             // breakpoint_render = false;
-            float tipX = 15.0f;
+            float tipX = 18.0f;
             float tipY = current_y + l * scale;
-            drawLineEx(0, tipY, tipX - 1, tipY, 2, ctr.system_col);
-            drawTriangle({tipX, tipY}, {tipX - 6, tipY - 5}, {tipX - 6, tipY + 5}, ctr.system_col);
+            drawLineEx(0, tipY, tipX - 1, tipY, 2, ctr.text_col);
+            drawTriangle({tipX, tipY}, {tipX - 6, tipY - 5}, {tipX - 6, tipY + 5}, ctr.text_col);
           }
-
-          // drawLineEx(0, current_y + l * scale, ctr.get_w(), current_y + l * scale, 1, ctr.system_col);
         }
+
+        int current_bp_y = current_y + l * scale;
+
+        if (current_bp_y > (int)ctr.get_h() && last_bp_y <= (int)ctr.get_h()) {
+          if (current_y < ctr.get_h()) {
+            ctr.render_hatch(last_bp_y, current_bp_y - last_bp_y, 10);
+
+            break;
+          }
+        }
+
+        last_bp_y = current_bp_y;
       }
 
       current_y += page_h;

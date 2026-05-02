@@ -373,6 +373,48 @@ void controller::unload() {
 
 void controller::close() { CloseWindow(); }
 
+void controller::render_hatch(int y, int h, int w) {
+  int line_spacing = 4;
+  int hatch_thickness = 1;
+  int offset = 3;
+  int line_thr = 2 * (offset + 2);
+
+  if (h < line_thr) {
+    drawLineEx(0, y + h / 2.0f, (float)w, y + h / 2.0f, 1, ctr.system_col);
+    return;
+  }
+
+  y += offset;
+  h -= 2 * offset;
+
+  for (int i = -h; i <= w; i += line_spacing) {
+    float x_start = (float)i;
+    float y_start = (float)y;
+    float x_end = (float)(i + h);
+    float y_end = (float)(y + h);
+
+    if (x_start < 0) {
+      y_start += (0 - x_start);
+      x_start = 0;
+    }
+    if (x_start > w) {
+      continue;
+    }
+    if (x_end > w) {
+      y_end -= (x_end - w);
+      x_end = (float)w;
+    }
+    if (x_end < 0) {
+      continue;
+    }
+
+    if (y_start < y_end) {
+      drawLineEx(x_start, y_start, x_end, y_end, (float)hatch_thickness, ctr.system_col);
+    }
+  }
+
+  drawTriangle({0.0f, (float)y}, {4.0f, (float)y}, {0.0f, (float)y + 4.0f}, ctr.system_col);
+}
 void controller::render_info() {
   const int infoSideMargin = get_w() - info_width;
   const int infoTopMargin = get_h() - info_height;
