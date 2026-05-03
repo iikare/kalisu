@@ -58,11 +58,13 @@ string getDirectory(const string& path) {
 }
 
 bool isValidPath(const string& path) {
+#if !defined(TARGET_WIN)
   struct stat info;
   // file doesn't exist in filesystem
   if (stat(path.c_str(), &info) == -1) {
     return false;
   }
+#endif
 
   string ext = getExtension(path);
 
