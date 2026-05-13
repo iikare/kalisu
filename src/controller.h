@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -37,6 +38,8 @@ class controller {
   void end() { EndDrawing(); }
 
   bool loaded() { return load_flag; }
+
+  void update_title(const string& file_path = "");
 
   bool run() { return !WindowShouldClose() && !close_flag; }
   void set_close() { close_flag = true; }

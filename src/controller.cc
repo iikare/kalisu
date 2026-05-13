@@ -156,10 +156,20 @@ void controller::load(string fp) {
   find_system_breakpoints();
   load_flag = true;
 
+  update_title(fp);
+
   logW(LL_INFO, "staves      |", inner_vec_ct(staves));
   logW(LL_INFO, "systems     |", inner_vec_ct(systems));
   logW(LL_INFO, "breakpoints |", inner_vec_ct(breakpoints));
   debug_time(start, "load");
+}
+
+void controller::update_title(const string& file_path) {
+  std::filesystem::path p(file_path);
+  const string window_title =
+      string(W_NAME) + " " + string(W_VER) + (file_path == "" ? "" : " - " + p.filename().string());
+  // logQ(window_title);
+  SetWindowTitle(window_title.c_str());
 }
 
 void controller::find_staves(vector<int> b_ct, int w) {
@@ -374,10 +384,10 @@ void controller::unload() {
 void controller::close() { CloseWindow(); }
 
 void controller::render_hatch(int y, int h, int w) {
-  int line_spacing = 4;
-  int hatch_thickness = 1;
-  int offset = 3;
-  int line_thr = 2 * (offset + 2);
+  int line_spacing = ctr.get_w() * 4.0f / W_WIDTH;
+  int hatch_thickness = ctr.get_w() * 1.0f / W_WIDTH;
+  int offset = ctr.get_w() * 3.0f / W_WIDTH;
+  int line_thr = ctr.get_w() * (2.0f * (offset + 2)) / W_WIDTH;
 
   if (h < line_thr) {
     drawLineEx(0, y + h / 2.0f, (float)w, y + h / 2.0f, 1, ctr.system_col);

@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
       if (isKeyPressed(KEY_W)) {
         if (ctr.loaded()) {
           ctr.unload();
+          ctr.update_title();
           show_info = false;
         }
         else {
@@ -168,7 +169,7 @@ int main(int argc, char** argv) {
         if (current_y + l * scale >= 0 && current_y + l * scale < ctr.get_h()) {
           if (breakpoint_render) {
             // breakpoint_render = false;
-            float tipX = 18.0f;
+            float tipX = ctr.get_w() * 12.0f / W_WIDTH + 6.0f;
             float tipY = current_y + l * scale;
             drawLineEx(0, tipY, tipX - 1, tipY, 2, ctr.text_col);
             drawTriangle({tipX, tipY}, {tipX - 6, tipY - 5}, {tipX - 6, tipY + 5}, ctr.text_col);
@@ -179,7 +180,7 @@ int main(int argc, char** argv) {
 
         if (current_bp_y > (int)ctr.get_h() && last_bp_y <= (int)ctr.get_h()) {
           if (current_y < ctr.get_h()) {
-            ctr.render_hatch(last_bp_y, current_bp_y - last_bp_y, 10);
+            ctr.render_hatch(last_bp_y, current_bp_y - last_bp_y, ctr.get_w() * 10.0 / W_WIDTH);
 
             break;
           }
